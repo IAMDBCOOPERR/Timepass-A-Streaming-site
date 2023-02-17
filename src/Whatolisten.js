@@ -45,10 +45,6 @@ const Listen = () => {
     )
      .then((d) => d.json())
      .then((d) => {
-      console.log(
-       d.tracks.items.track.name,
-       d.tracks.items.trackalbum.images[1].url
-      )
       setData(d.tracks.items)
      })
    }

@@ -94,7 +94,7 @@ const Home = () => {
   imdb_id: "tt10954984",
   title: "Nope",
   tagline: "What’s a bad miracle?",
-  ott: "prime",
+  ott: "Amazon prime video",
   videos: {
    results: [
     {
@@ -126,6 +126,8 @@ const Home = () => {
    <Section data={8222496} title="WAR MOVIES THAT U SHOULD'NT MISS " />
    <Section data={8222141} title="BEST ANIMATED MOVIES " />
    <Section data={8222144} title="BEST FEEL GOOD MOVIES " />
+   <Section data={8229820} title="TIME TRAVEL MOVIES " />
+
    <Mom {...prey} />
    <Section data={8222432} title="BEST 40 TELUGU MOVIES " />
    <Section data={8222438} title="TOP ANIME MOVIES " />

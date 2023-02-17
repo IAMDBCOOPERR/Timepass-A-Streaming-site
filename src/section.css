@@ -38,7 +38,7 @@ html{
   padding-right: 2px;
   font-size: 12px;
   margin-top: 8px;
-  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif !important;
   color:#fff;
 }
 .section{
@@ -123,5 +123,10 @@ html{
   width: 123px;
   height: 123px;
   
+ }
+ 
+ .song_title{
+  
+ font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif !important;
  }
 }

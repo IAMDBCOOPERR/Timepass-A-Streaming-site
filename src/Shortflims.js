@@ -136,17 +136,16 @@ export default function Shortflims() {
 
  return (
   <>
-   <div>
+   <div style={{ marginTop: "20px" }}>
     <span className="title_short"> SHORT FLIMS ON YOUTUBE</span>
     <i style={{ fontSize: "15px" }} className="fa fa-chevron-right"></i>
     <div className="short_flim_scroll">
      {sf &&
       sf.map((s, i) => {
        return (
-        <div>
+        <div key={i}>
          <img
           src={s.poster}
-          key={i}
           className="short_pic"
           alt={s.title}
           data-id={s.yid.split("=")[1]}

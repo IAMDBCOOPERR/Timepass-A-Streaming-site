@@ -22,9 +22,9 @@ export default function Similar() {
  const name = loc.pathname.split("/")[3]
  const end = `http://www.omdbapi.com?t=${name}&apikey=de727baf`
  if (loc.pathname.split("/")[1] == "tv") {
-  endpoint = `https://api.themoviedb.org/3/tv/${id}?api_key=680db35a08bf7184a8a2c16cd0d7308e&language=en-US&&append_to_response=watch%2Fproviders,videos,recommendations`
+  endpoint = `https://api.themoviedb.org/3/tv/${id}?api_key=680db35a08bf7184a8a2c16cd0d7308e&language=en-US&&append_to_response=watch%2Fproviders,videos,recommendations,,images&include_image_language=en,null`
  } else {
-  endpoint = `https://api.themoviedb.org/3/movie/${id}?api_key=680db35a08bf7184a8a2c16cd0d7308e&language=en-US&&append_to_response=watch%2Fproviders,videos,recommendations`
+  endpoint = `https://api.themoviedb.org/3/movie/${id}?api_key=680db35a08bf7184a8a2c16cd0d7308e&language=en-US&&append_to_response=watch%2Fproviders,videos,recommendations,,images&include_image_language=en,null`
  }
  useEffect(() => {
   fetch(endpoint)
@@ -125,9 +125,21 @@ export default function Similar() {
     }
    })
  }
+
  const youtube_url = `https://www.youtube.com/embed/`
  const logoppath = "https://image.tmdb.org/t/p/original"
  const similar_pic = "https://image.tmdb.org/t/p/w300"
+ if (d) {
+  try {
+   var back = d.images.backdrops[1].file_path
+   var backk = back.split("/")[1]
+   var drop = backk.split(".")[0]
+  } catch (e) {
+   var back = d.images.backdrops[0].file_path
+   var backk = back.split("/")[1]
+   var drop = backk.split(".")[0]
+  }
+ }
  return (
   <>
    <Navextra />
@@ -155,8 +167,58 @@ export default function Similar() {
     <div className="movie-inner-details">
      {data && (
       <div className="movie-details">
+       {d.production_companies &&
+        d.production_companies.map((pr) => {
+         if (pr.name == "Amazon Studios" || pr.name == "A24") {
+          return (
+           <div
+            style={{
+             fontStyle: "bold",
+             fontFamily: "Arial, Helvetica, sans-serif",
+             letterSpacing: "0.7px",
+             fontWeight: "900",
+             fontSize: "11px",
+             color: "grey",
+             marginBottom: "3px",
+            }}
+           >
+            {pr.name == "Amazon Studios"
+             ? "#AMAZON ORIGINAL"
+             : "#A24 PRODUCTION"}
+           </div>
+          )
+         } else if (
+          pr.name == "Columbia Pictures" ||
+          pr.name == "Warner Bros. Pictures" ||
+          pr.name == "New Line Cinema" ||
+          pr.name == "Universal Pictures" ||
+          pr.name == "Pixar" ||
+          pr.name == "DreamWorks Pictures" ||
+          pr.name == "Next Entertainment World" ||
+          pr.name == "CoMix Wave Films"
+         ) {
+          return (
+           <div
+            style={{
+             fontStyle: "bold",
+             fontFamily: "Arial, Helvetica, sans-serif",
+             letterSpacing: "1px",
+             fontWeight: "800",
+             fontSize: "11px",
+             color: "grey",
+             marginBottom: "3px",
+            }}
+           >
+            {"#" + pr.name.toUpperCase()}
+           </div>
+          )
+         }
+        })}
        <div className="movie-pri-desc">
-        <div className="movie-description">
+        <div
+         className="movie-description"
+         style={{ fontFamily: `"Staatliches", cursive` }}
+        >
          <h1>{data.Title}</h1>
         </div>
         <Heart className="extra-details">
@@ -166,29 +228,72 @@ export default function Similar() {
            style={{ textDecoration: "none", color: "white" }}
           >
            {" "}
-           <AiFillInstagram style={{ fontSize: "25px", marginTop: "-1px" }} />
+           <AiFillInstagram
+            style={{
+             fontSize: "25px",
+             marginTop: "-1px",
+             fontFamily: `"Staatliches", cursive`,
+            }}
+           />
           </Link>
          </div>
          <div>
           <i className="fa fa-heart" style={{ color: "red" }} id="i"></i>
-          <div className="likes">{likes}</div>
+          <div
+           className="likes"
+           style={{ fontFamily: `"Staatliches", cursive` }}
+          >
+           {likes}
+          </div>
          </div>
         </Heart>
        </div>
-       <div className="year">
+       <div className="year" style={{ fontFamily: `"Staatliches", cursive` }}>
         {data.Year} • {data.Runtime}s •
-        <span className="rated"> {data.Rated}</span>
+        <span
+         className="rated"
+         style={{ fontFamily: `"Staatliches", cursive` }}
+        >
+         {" "}
+         {data.Rated}
+        </span>
        </div>
-       <div className="watch">
-        <center>
-         <i className="fa-solid fa-play"></i>&ensp;WATCH NOW
-        </center>
-       </div>
-       <div className="tagline">
-        <div>{d.tagline}</div>
+       <Link
+        to={`/watch/${d.title}/${d.imdb_id}/${drop}`}
+        style={{ textDecoration: "none", color: "white" }}
+       >
+        {" "}
+        <div className="watch" style={{ fontFamily: `"Staatliches", cursive` }}>
+         <center>
+          <i className="fa-solid fa-play"></i>&ensp;WATCH NOW
+         </center>
+        </div>
+       </Link>
+       <Link
+        to={`/download/movie/${name}`}
+        style={{ textDecoration: "none", color: "white" }}
+       >
+        <div
+         style={{
+          padding: "9.5px",
+          marginTop: "12px",
+          textAlign: "center",
+          borderRadius: "2px",
+         }}
+         className="download"
+        >
+         <center>Download</center>
+        </div>
+       </Link>
+       <div
+        className="tagline"
+        style={{ fontFamily: `"Staatliches", cursive` }}
+       >
+        <div style={{ fontFamily: `"Staatliches", cursive` }}>{d.tagline}</div>
 
         <div
          className="trailer"
+         style={{ fontFamily: `"Staatliches", cursive` }}
          onClick={() => {
           const color = document.querySelector(".backdrop_container")
           if (play) {
@@ -207,13 +312,19 @@ export default function Similar() {
        </div>
 
        {d.number_of_seasons && (
-        <div className="seasons">
+        <div
+         className="seasons"
+         style={{ fontFamily: `"Staatliches", cursive` }}
+        >
          <div> {d.number_of_seasons} seasons </div> |
          <div>{d.number_of_episodes} episodes </div>|
          <div>{d.episode_run_time[0]} min </div>
         </div>
        )}
-       <div className="director">
+       <div
+        className="director"
+        style={{ fontFamily: `"Staatliches", cursive` }}
+       >
         <GiDirectorChair style={{ fontSize: "20px", color: "white" }} />
         <div style={{ width: "180px !important" }}> {data.Director} </div>
         &nbsp;
@@ -225,7 +336,11 @@ export default function Similar() {
         ></i>
         <div> {data.imdbRating}/10</div>
        </div>
-       <div className="Actors" id="f">
+       <div
+        className="Actors"
+        id="f"
+        style={{ fontFamily: `"Staatliches", cursive !important` }}
+       >
         <i
          className="fa-solid fa-user-group"
          id="ac"
@@ -234,7 +349,11 @@ export default function Similar() {
         <div style={{ marginLeft: "1px" }}>{Actors}</div>
        </div>
        {!(data.Awards === "N/A") && (
-        <div className="Awards" id="f">
+        <div
+         className="Awards"
+         style={{ fontFamily: `"Staatliches", cursive` }}
+         id="f"
+        >
          <BsFillAwardFill
           style={{
            color: "white",
@@ -245,7 +364,11 @@ export default function Similar() {
          <div>{data.Awards}</div>
         </div>
        )}
-       <div className="overview" id="f">
+       <div
+        className="overview"
+        id="f"
+        style={{ fontFamily: `"Staatliches", cursive` }}
+       >
         <i
          className="fa-solid fa-rectangle-list"
          style={{
@@ -258,7 +381,7 @@ export default function Similar() {
        </div>
 
        {w1 && (
-        <div class="w">
+        <div className="w">
          <i className="fa-solid fa-satellite-dish dish"></i>
          <div className="t" style={{ font_size: "10px" }}>
           NOW STREAMING ON
@@ -272,6 +395,7 @@ export default function Similar() {
        {d.recommendations && (
         <div
          style={{
+          fontFamily: `"Staatliches", cursive`,
           marginTop: "10px",
           fontSize: "14px",
           letterSpacing: "1.3px",
@@ -306,7 +430,12 @@ export default function Similar() {
                 alt={m.title}
                ></img>
               </Link>
-              <div className="similar_title">{share_titled}</div>
+              <div
+               className="similar_title"
+               style={{ fontFamily: `"Staatliches", cursive` }}
+              >
+               {share_titled}
+              </div>
              </div>
             )
            }

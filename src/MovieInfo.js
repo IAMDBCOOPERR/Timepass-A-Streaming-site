@@ -1,15 +1,17 @@
-import { useParams, useLocation } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { GiDirectorChair } from "react-icons/gi"
 import { SiRottentomatoes } from "react-icons/si"
 import { BsFillAwardFill } from "react-icons/bs"
-import { AiFillInstagram } from "react-icons/ai"
 import { v4 as uuidv4 } from "uuid"
+import { CgMagnet } from "react-icons/cg"
 import { Link } from "react-router-dom"
 import styled from "styled-components"
 import "./movieifno.css"
+import Exfooter from "./Exfooter"
 import Footer from "./Footer"
 import Navextra from "./Navextra"
+import { FaImdb } from "react-icons/fa"
 export default function MovieInfo() {
  const [data, setData] = useState("")
  const [d, setd] = useState("")
@@ -17,15 +19,14 @@ export default function MovieInfo() {
  const [play, setPlay] = useState(true)
  const loc = useLocation()
  var endpoint
-
- const id = loc.pathname.split("/")[2]
- const name = loc.pathname.split("/")[3]
+ var id = loc.pathname.split("/")[2]
+ var name = loc.pathname.split("/")[3]
  const end = `http://www.omdbapi.com?t=${name}&apikey=de727baf`
 
  if (loc.pathname.split("/")[1] == "tv") {
-  endpoint = `https://api.themoviedb.org/3/tv/${id}?api_key=680db35a08bf7184a8a2c16cd0d7308e&language=en-US&&append_to_response=watch%2Fproviders,videos,recommendations`
+  endpoint = `https://api.themoviedb.org/3/tv/${id}?api_key=680db35a08bf7184a8a2c16cd0d7308e&language=en-US&&append_to_response=watch%2Fproviders,videos,recommendations,images&include_image_language=en,null`
  } else {
-  endpoint = `https://api.themoviedb.org/3/movie/${id}?api_key=680db35a08bf7184a8a2c16cd0d7308e&language=en-US&&append_to_response=watch%2Fproviders,videos,recommendations`
+  endpoint = `https://api.themoviedb.org/3/movie/${id}?api_key=680db35a08bf7184a8a2c16cd0d7308e&language=en-US&&append_to_response=watch%2Fproviders,videos,recommendations,images&include_image_language=en,null`
  }
  useEffect(() => {
   fetch(endpoint)
@@ -73,7 +74,20 @@ export default function MovieInfo() {
   } catch {
    var ratings = Math.floor(Math.random() * (10 - 7 + 1)) + 7
   }
-  if (data.Title.length > 20 && data.Title.length < 29) {
+ }
+
+ var trailer = []
+ {
+  d &&
+   d.videos.results.map((m) => {
+    if (m.type === "Trailer") {
+     trailer.push(m.key)
+    }
+   })
+ }
+ if (d) {
+  var movieName = d.title || d.name
+  if (movieName.title > 24 && movieName.title < 31) {
    var Heart = styled.div`
     display: flex;
     width: 80px;
@@ -82,11 +96,7 @@ export default function MovieInfo() {
     right: 0%;
     bottom: -90%;
    `
-   var send = {
-    margin_top: "20px !important",
-    color: "green !important",
-   }
-  } else if (data.Title.length > 30) {
+  } else if (movieName.length > 30) {
    var Heart = styled.div`
     display: flex;
     width: 80px;
@@ -107,43 +117,54 @@ export default function MovieInfo() {
     right: 0%;
     bottom: -30%;
    `
-
-   var send = {
-    color: "green !important",
-   }
   }
  }
- var trailer = []
- {
-  d &&
-   d.videos.results.map((m) => {
-    if (m.type === "Trailer") {
-     trailer.push(m.key)
-    }
-   })
- }
-
+ var torrentlink
  const youtube_url = `https://www.youtube.com/embed/`
  const logoppath = "https://image.tmdb.org/t/p/original"
  const similar_pic = "https://image.tmdb.org/t/p/w300"
+ if (d) {
+  try {
+   var back = d.images.backdrops[1].file_path
+   var backk = back.split("/")[1]
+   var drop = backk.split(".")[0]
+  } catch (e) {
+   var back = d.images.backdrops[0].file_path
+   var backk = back.split("/")[1]
+   var drop = backk.split(".")[0]
+  }
+  torrentlink = `https://www1.thepiratebay3.to/s/?q=${
+   name + "+" + data.Year
+  }&video=on&category=0`
+ }
+ var type
+ if (d.number_of_episodes) {
+  type = "tv/series"
+ } else {
+  type = "watch/movie"
+ }
+ var y
+ if (data) {
+  y =
+   data.Year.split("")[0] +
+   data.Year.split("")[1] +
+   data.Year.split("")[2] +
+   data.Year.split("")[3]
+ }
  return (
   <>
    <Navextra />
    <div className="movie-data-container">
     <div className="backdrop_container fade">
-     {data && play && (
-      <img
-       className="backdrop"
-       src={logoppath + d.backdrop_path}
-       alt={"i"}
-      ></img>
+     {data && d && play && (
+      <img className="backdrop" src={logoppath + back} alt={"i"}></img>
      )}
-     {data && !play && (
+     {data && d && !play && (
       <iframe
        className="youtube"
        border="0"
        width="100%"
-       height="330px"
+       height="225px"
        src={youtube_url + trailer[0]}
        frameBorder={0}
        allowFullScreen
@@ -151,31 +172,82 @@ export default function MovieInfo() {
      )}
     </div>
     <div className="movie-inner-details">
-     {data && (
+     {data && d && (
       <div className="movie-details">
+       {d.production_companies &&
+        d.production_companies.map((pr) => {
+         if (pr.name == "Amazon Studios" || pr.name == "A24") {
+          return (
+           <div
+            style={{
+             fontStyle: "bold",
+             fontFamily: "Arial, Helvetica, sans-serif",
+             letterSpacing: "0.7px",
+             fontSize: "11px",
+             color: "grey",
+             marginBottom: "3px",
+            }}
+           >
+            {pr.name == "Amazon Studios"
+             ? "#AMAZON ORIGINAL"
+             : "#A24 PRODUCTION"}
+           </div>
+          )
+         } else if (
+          pr.name == "Columbia Pictures" ||
+          pr.name == "Warner Bros. Pictures" ||
+          pr.name == "New Line Cinema" ||
+          pr.name == "Universal Pictures" ||
+          pr.name == "Pixar" ||
+          pr.name == "DreamWorks Pictures" ||
+          pr.name == "Next Entertainment World" ||
+          pr.name == "CoMix Wave Films"
+         ) {
+          return (
+           <div
+            style={{
+             fontStyle: "bold",
+             fontFamily: "Arial, Helvetica, sans-serif",
+             letterSpacing: "1px",
+             fontWeight: "750",
+             fontSize: "11px",
+             color: "grey",
+             marginBottom: "3px",
+            }}
+           >
+            {"#" + pr.name.toUpperCase()}
+           </div>
+          )
+         }
+        })}
        <div className="movie-pri-desc">
         <div className="movie-description">
-         <h1 style={{ fontFamily: `"Staatliches", cursive` }}>{data.Title}</h1>
+         <h1 style={{ fontFamily: `"Staatliches", cursive` }}>
+          {d.title || d.name}
+         </h1>
         </div>
         <Heart className="extra-details">
          <div>
-          <Link
-           to={`/share/${id}`}
+          <a
+           href={torrentlink}
+           target={"_blank"}
            style={{
             textDecoration: "none",
             color: "white",
             fontFamily: `"Staatliches", cursive`,
            }}
           >
-           {" "}
-           <AiFillInstagram
+           <CgMagnet
+            color="red"
             style={{
-             fontSize: "25px",
-             marginTop: "-1px",
-             fontFamily: `"Staatliches", cursive`,
+             marginTop: "2px",
+             marginRight: "5px",
+             fontSize: "22px",
+
+             rotate: "40deg",
             }}
            />
-          </Link>
+          </a>
          </div>
          <div>
           <i className="fa fa-heart" style={{ color: "red" }} id="i"></i>
@@ -189,7 +261,8 @@ export default function MovieInfo() {
         </Heart>
        </div>
        <div className="year" style={{ fontFamily: `"Staatliches", cursive` }}>
-        {data.Year} • {data.Runtime}s •
+        {d.release_date?.split("-")[0] || data.Year} •{" "}
+        {data.Runtime || d.runtime}s •
         <span
          className="rated"
          style={{ fontFamily: `"Staatliches", cursive` }}
@@ -197,16 +270,35 @@ export default function MovieInfo() {
          {" "}
          {data.Rated}
         </span>
-       </div>
+       </div>{" "}
        <Link
-        to={`/watch/${id}`}
+        to={`/${type}/${d.title || d.name}/${
+         d.first_air_date?.split("-")[0]
+        }/${drop}`}
+        state={{ tagline: `${d.tagline}` }}
         style={{ textDecoration: "none", color: "white" }}
        >
         {" "}
         <div className="watch" style={{ fontFamily: `"Staatliches", cursive` }}>
          <center>
-          <i className="fa-solid fa-play"></i>&ensp;WATCH NOW
+          <i className="fa-solid fa-play"></i>&ensp;watch now
          </center>
+        </div>
+       </Link>
+       <Link
+        to={`/download/movie/${name}`}
+        style={{ textDecoration: "none", color: "white" }}
+       >
+        <div
+         style={{
+          padding: "9.5px",
+          marginTop: "12px",
+          textAlign: "center",
+          borderRadius: "2px",
+         }}
+         className="download"
+        >
+         <center>Download</center>
         </div>
        </Link>
        <div className="tagline">
@@ -230,28 +322,40 @@ export default function MovieInfo() {
          {text}
         </div>
        </div>
-
        {d.number_of_seasons && (
         <div
          className="seasons"
          style={{ fontFamily: `"Staatliches", cursive` }}
         >
-         <div> {d.number_of_seasons} seasons </div> |
-         <div>{d.number_of_episodes} episodes </div>|
+         <div>
+          {" "}
+          {d.number_of_seasons}{" "}
+          {d.number_of_seasons.length <= 1 ? "seasons" : "season"}{" "}
+         </div>{" "}
+         |<div>{d.number_of_episodes} episodes </div>|
          <div>{d.episode_run_time[0]} min </div>
         </div>
        )}
        <div className="director">
         <GiDirectorChair style={{ fontSize: "20px", color: "white" }} />
-        <div style={{ width: "180px !important" }}> {data.Director} </div>
+        <div
+         style={{
+          width: "180px !important",
+          fontFamily: `"Staatliches", cursive`,
+         }}
+        >
+         {" "}
+         {data.Director}{" "}
+        </div>
         &nbsp;
         <SiRottentomatoes className="rt" style={{ color: "white" }} />
-        <div> {ratings}</div>&nbsp;
-        <i
-         className="fa-brands fa-imdb"
-         style={{ color: "white", fontSize: "22px" }}
-        ></i>
-        <div> {data.imdbRating}/10</div>
+        <div style={{ fontFamily: `"Staatliches", cursive` }}> {ratings}</div>
+        &nbsp;
+        <FaImdb style={{ color: "white", fontSize: "20px" }}></FaImdb>
+        <div style={{ fontFamily: `"Staatliches", cursive` }}>
+         {" "}
+         {data.imdbRating}/10
+        </div>
        </div>
        <div className="Actors" id="f">
         <i
@@ -259,7 +363,11 @@ export default function MovieInfo() {
          id="ac"
          style={{ color: "white", fontSize: "14px" }}
         ></i>
-        <div style={{ marginLeft: "1px" }}>{Actors}</div>
+        <div
+         style={{ marginLeft: "1px", fontFamily: `"Staatliches", cursive` }}
+        >
+         {Actors}
+        </div>
        </div>
        {!(data.Awards === "N/A") && (
         <div className="Awards" id="f">
@@ -270,10 +378,16 @@ export default function MovieInfo() {
            marginLeft: "-1px",
           }}
          />
-         <div>{data.Awards}</div>
+         <div style={{ fontFamily: `"Staatliches", cursive` }}>
+          {data.Awards}
+         </div>
         </div>
        )}
-       <div className="overview" id="f">
+       <div
+        className="overview"
+        id="f"
+        style={{ fontFamily: `"Staatliches", cursive` }}
+       >
         <i
          className="fa-solid fa-rectangle-list"
          style={{
@@ -282,11 +396,10 @@ export default function MovieInfo() {
           marginTop: "2px",
          }}
         ></i>
-        <div>{data.Plot}</div>
+        <div style={{ fontFamily: `"Staatliches", cursive` }}>{data.Plot}</div>
        </div>
-
        {w1 && (
-        <div class="w">
+        <div className="w">
          <i className="fa-solid fa-satellite-dish dish"></i>
          <div className="t" style={{ font_size: "10px" }}>
           NOW STREAMING ON
@@ -296,26 +409,25 @@ export default function MovieInfo() {
          {d["watch/providers"] && w3 && <div className="ott">{w3}</div>}
         </div>
        )}
-
        {d.recommendations && d.recommendations.results.length > 0 && (
         <div
          style={{
           marginTop: "10px",
           fontSize: "14px",
           letterSpacing: "1.3px",
+          fontFamily: `"Staatliches", cursive`,
          }}
         >
          Related films
         </div>
        )}
-       {console.log(d.recommendations)}
        {d.recommendations && d.recommendations.results.length > 0 && (
         <div className="border_line"></div>
        )}
        {d.recommendations && d.recommendations.results.length > 0 && (
         <div className="similar">
          {d.recommendations &&
-          d.recommendations.results.map((m) => {
+          d.recommendations.results.map((m, i) => {
            if (m.popularity > 40) {
             if (loc.pathname.split("/")[1] == "tv") {
              var share_titled = m.name
@@ -325,7 +437,7 @@ export default function MovieInfo() {
              var link = `/similar/${m.id}/${share_titled}`
             }
             return (
-             <div>
+             <div key={i}>
               <Link
                state={{
                 data: m,
@@ -344,7 +456,12 @@ export default function MovieInfo() {
                 alt={m.title}
                ></img>
               </Link>
-              <div className="similar_title">{share_titled}</div>
+              <div
+               style={{ fontFamily: `"Staatliches", cursive` }}
+               className="similar_title"
+              >
+               {share_titled}
+              </div>
              </div>
             )
            }
@@ -357,6 +474,7 @@ export default function MovieInfo() {
    </div>
 
    {data && <Footer />}
+   {data && <Exfooter />}
   </>
  )
 }

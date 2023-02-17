@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import "./section.css"
 import { v4 as uuidv4 } from "uuid"
 import { Link } from "react-router-dom"
+
 const Section = (props) => {
  const list_id = props.data
  const section_title = props.title
@@ -19,6 +20,7 @@ const Section = (props) => {
     setData(data.items)
    })
  }, [end])
+
  return (
   <section>
    <div className="theme section">
@@ -27,9 +29,9 @@ const Section = (props) => {
    </div>
    <div className="o-div" id="layout">
     {!data &&
-     arr.map((m) => {
+     arr.map((m, i) => {
       return (
-       <div className="place">
+       <div className="place" key={i}>
         <div className="inner-place"></div>
        </div>
       )
@@ -46,8 +48,8 @@ const Section = (props) => {
       const photo_link = m.poster_path
       const photo = `https://image.tmdb.org/t/p/w300${photo_link}`
       return (
-       <div className="item">
-        <Link to={link} state={{ data: m, key: uuidv4() }}>
+       <div className="item" key={m.id}>
+        <Link to={link} state={{ data: m.backdrop_path, key: uuidv4() }}>
          <img
           loading="lazy"
           decoding="async"
